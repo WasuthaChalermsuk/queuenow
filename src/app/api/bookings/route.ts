@@ -373,6 +373,6 @@ export async function POST(req: NextRequest) {
       return errorResponse(error.message, 409);
     }
 
-    return errorResponse("เกิดข้อผิดพลาดในการสร้างการจอง", 500);
+    return errorResponse(`เกิดข้อผิดพลาดในการสร้างการจอง: ${error instanceof Error ? error.message : String(error)}`, 500);
   }
 }
