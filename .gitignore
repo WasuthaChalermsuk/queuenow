@@ -7,3 +7,5 @@ out/
 .env.production
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
