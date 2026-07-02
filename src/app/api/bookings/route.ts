@@ -38,10 +38,10 @@ async function createBookingWithRetry(
       const bookingNumber = generateBookingNumber();
       const bookingDateObj = new Date(input.bookingDate + "T00:00:00.000Z");
 
-      const result = await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(
+        async (tx) => {
         // ============================================
         // H1: Availability check ใน transaction — ป้องกัน race condition
-        // ============================================
 
         const txService = await tx.service.findUnique({
           where: { id: input.serviceId },
@@ -260,7 +260,7 @@ async function createBookingWithRetry(
           booking: { ...booking, queuePosition: position },
           customerId: cust.id,
         };
-      });
+      }, { timeout: 20000, maxWait: 10000 });
 
       return result;
 
