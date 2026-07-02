@@ -1,0 +1,240 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   QueueNow Design System — Dark Theme Default
+   ============================================ */
+
+@layer base {
+  :root {
+    /* ----- Dark Theme (default) ----- */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 6.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Primary: Electric Blue (#3B82F6) */
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    /* Secondary: Slate */
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Muted */
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    /* Accent: Indigo */
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    /* Destructive: Red */
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    /* Borders & Inputs */
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+
+    /* Radius */
+    --radius: 0.75rem;
+
+    /* QueueNow Brand Tokens */
+    --brand-primary: #3b82f6;
+    --brand-primary-hover: #2563eb;
+    --brand-primary-light: #dbeafe;
+    --brand-secondary: #8b5cf6;
+    --brand-success: #10b981;
+    --brand-warning: #f59e0b;
+    --brand-danger: #ef4444;
+    --brand-info: #06b6d4;
+
+    /* Status Colors */
+    --status-pending: #f59e0b;
+    --status-confirmed: #3b82f6;
+    --status-arrived: #8b5cf6;
+    --status-serving: #06b6d4;
+    --status-completed: #10b981;
+    --status-cancelled: #ef4444;
+    --status-no-show: #6b7280;
+
+    /* Surface Colors */
+    --surface-ground: #0f172a;
+    --surface-card: #1e293b;
+    --surface-overlay: #1e293b;
+    --surface-border: #334155;
+    --surface-hover: #1e293b;
+
+    /* Typography */
+    --font-sans: "Noto Sans Thai", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6);
+  }
+
+  /* ----- Light Theme Override ----- */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+
+    --surface-ground: #f8fafc;
+    --surface-card: #ffffff;
+    --surface-overlay: #ffffff;
+    --surface-border: #e2e8f0;
+    --surface-hover: #f1f5f9;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply antialiased;
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
+  }
+
+  /* Thai font optimization */
+  :lang(th) {
+    font-family: "Noto Sans Thai", "Noto Sans", sans-serif;
+    line-height: 1.75;
+    letter-spacing: 0.01em;
+  }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+@layer components {
+  /* Queue Card */
+  .queue-card {
+    @apply bg-card text-card-foreground rounded-lg border shadow-sm;
+  }
+
+  /* Status Badges */
+  .badge-pending {
+    @apply bg-warning/20 text-warning border border-warning/30;
+  }
+  .badge-confirmed {
+    @apply bg-primary/20 text-primary border border-primary/30;
+  }
+  .badge-arrived {
+    @apply bg-brand-secondary/20 text-brand-secondary border border-brand-secondary/30;
+  }
+  .badge-serving {
+    @apply bg-brand-info/20 text-brand-info border border-brand-info/30;
+  }
+  .badge-completed {
+    @apply bg-success/20 text-success border border-success/30;
+  }
+  .badge-cancelled {
+    @apply bg-danger/20 text-danger border border-danger/30;
+  }
+  .badge-no-show {
+    @apply bg-muted text-muted-foreground border;
+  }
+
+  /* Step Indicator */
+  .step-active {
+    @apply bg-primary text-primary-foreground;
+  }
+  .step-completed {
+    @apply bg-success text-white;
+  }
+  .step-inactive {
+    @apply bg-muted text-muted-foreground;
+  }
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@layer utilities {
+  .animate-in {
+    animation: fade-in 0.3s ease-out, slide-up 0.3s ease-out;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted));
+    border-radius: 3px;
+  }
+}
+
+/* ============================================
+   Print Styles (สำหรับพิมพ์บัตรคิว)
+   ============================================ */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .queue-card {
+    border: 2px solid #000 !important;
+    box-shadow: none !important;
+  }
+}

@@ -1,0 +1,327 @@
+// ============================================
+// Prisma Schema — QueueNow Booking System
+// Database: SQLite (local dev) → PostgreSQL (production)
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ============================================
+// 1. SHOPS — ร้านค้า/สาขา
+// ============================================
+
+model Shop {
+  id          String   @id @default(uuid())
+  name        String                                    // ชื่อร้าน
+  nameEn      String?                                   // ชื่อร้านภาษาอังกฤษ
+  code        String   @unique                          // รหัสร้าน (short code)
+  description String?                                   // คำอธิบาย
+  logo        String?                                   // URL โลโก้
+  address     String?                                   // ที่อยู่
+  phone       String?                                   // เบอร์โทร
+  email       String?                                   // อีเมล
+  lineId      String?                                   // LINE Official ID
+  timezone    String   @default("Asia/Bangkok")         // Timezone
+  isActive    Boolean  @default(true)                   // เปิด/ปิดการใช้งาน
+  maxQueuePerSlot Int   @default(5)                     // จำนวนคิวสูงสุดต่อ slot
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  services         Service[]
+  staff            Staff[]
+  shopHours        ShopHour[]
+  bookings         Booking[]
+  adminUsers       AdminUser[]
+  bookingSettings  BookingSetting[]
+  specialHolidays  SpecialHoliday[]
+
+  @@map("shops")
+}
+
+// ============================================
+// 2. SERVICES — บริการ
+// ============================================
+
+model Service {
+  id          String   @id @default(uuid())
+  shopId      String
+  name        String                                    // ชื่อบริการ (ไทย)
+  nameEn      String?                                   // ชื่อบริการ (อังกฤษ)
+  description String?                                   // คำอธิบาย
+  duration    Int                                       // ระยะเวลา (นาที)
+  price       Float?                                     // ราคา
+  color       String?  @default("#3b82f6")             // สีประจำบริการ
+  sortOrder   Int      @default(0)                     // ลำดับการแสดง
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  shop          Shop           @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  staffServices StaffService[]
+  bookings      Booking[]
+
+  @@index([shopId])
+  @@map("services")
+}
+
+// ============================================
+// 3. STAFF — พนักงาน
+// ============================================
+
+model Staff {
+  id          String   @id @default(uuid())
+  shopId      String
+  code        String?  @unique                          // รหัสพนักงาน
+  firstName   String                                    // ชื่อ
+  lastName    String                                    // นามสกุล
+  nickname    String?                                   // ชื่อเล่น
+  email       String?                                   // อีเมล
+  phone       String?                                   // เบอร์โทร
+  avatar      String?                                   // URL รูป
+  color       String?  @default("#8b5cf6")             // สีประจำตัว
+  isActive    Boolean  @default(true)                   // ใช้งานอยู่หรือไม่
+  maxConcurrentBookings Int @default(1)                 // จำนวนคิวพร้อมกันสูงสุด
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  shop           Shop           @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  staffServices  StaffService[]
+  breakTimes     BreakTime[]
+  bookings       Booking[]
+
+  @@index([shopId])
+  @@map("staff")
+}
+
+// ============================================
+// 4. STAFF_SERVICES — บริการที่พนักงานทำได้ (Many-to-Many)
+// ============================================
+
+model StaffService {
+  id        String   @id @default(uuid())
+  staffId   String
+  serviceId String
+  createdAt DateTime @default(now())
+
+  // Relations
+  staff   Staff   @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([staffId, serviceId])
+  @@index([staffId])
+  @@index([serviceId])
+  @@map("staff_services")
+}
+
+// ============================================
+// 5. SHOP_HOURS — เวลาทำการของร้าน
+// ============================================
+
+model ShopHour {
+  id        String    @id @default(uuid())
+  shopId    String
+  dayOfWeek String                                    // วัน
+  openTime  String                                      // เวลาเปิด (HH:mm)
+  closeTime String                                      // เวลาปิด (HH:mm)
+  isClosed  Boolean   @default(false)                  // หยุดวันนี้?
+  slotDuration Int     @default(15)                     // ระยะห่าง slot (นาที)
+  maxBookingsPerSlot Int @default(3)                    // จำนวนคิวต่อ slot
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, dayOfWeek])
+  @@index([shopId])
+  @@map("shop_hours")
+}
+
+// ============================================
+// 6. BREAK_TIMES — เวลาพักของพนักงาน
+// ============================================
+
+model BreakTime {
+  id        String   @id @default(uuid())
+  staffId   String
+  name      String?                                    // ชื่อช่วงพัก (พักเที่ยง, ประชุม)
+  startTime DateTime                                   // เวลาเริ่มพัก
+  endTime   DateTime                                   // เวลาสิ้นสุด
+  isRecurring Boolean @default(false)                  // เกิดซ้ำทุกสัปดาห์?
+  dayOfWeek  String?                                  // วัน (ถ้า recurring)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([staffId])
+  @@map("break_times")
+}
+
+// ============================================
+// 7. CUSTOMERS — ลูกค้า
+// ============================================
+
+model Customer {
+  id          String   @id @default(uuid())
+  firstName   String                                    // ชื่อ
+  lastName    String                                    // นามสกุล
+  phone       String?                                   // เบอร์โทร
+  email       String?                                   // อีเมล
+  lineUserId  String?  @unique                         // LINE User ID
+  notes       String?                                   // หมายเหตุ
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  bookings Booking[]
+
+  @@index([phone])
+  @@index([email])
+  @@map("customers")
+}
+
+// ============================================
+// 8. BOOKINGS — การจองคิว
+// ============================================
+
+model Booking {
+  id            String        @id @default(uuid())
+  shopId        String
+  customerId    String
+  serviceId     String
+  staffId       String?
+  bookingNumber String        @unique                  // เลขคิว (เช่น Q001)
+  bookingDate   DateTime                                // วันที่จอง
+  timeSlot      String                                  // เวลาที่จอง (HH:mm)
+  status        String    @default("PENDING")          // สถานะ
+  queuePosition Int?                                    // ตำแหน่งคิวในวันนั้น
+  totalPrice    Float?                                    // ราคารวม
+  notes         String?                                 // หมายเหตุจากลูกค้า
+  adminNotes    String?                                 // หมายเหตุจากแอดมิน
+  arrivedAt     DateTime?                               // เวลาที่มาถึง
+  startedAt     DateTime?                               // เวลาที่เริ่มให้บริการ
+  completedAt   DateTime?                               // เวลาที่เสร็จ
+  cancelledAt   DateTime?                               // เวลาที่ยกเลิก
+  cancelReason  String?                                 // เหตุผลยกเลิก
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  shop             Shop               @relation(fields: [shopId], references: [id])
+  customer         Customer           @relation(fields: [customerId], references: [id])
+  service          Service            @relation(fields: [serviceId], references: [id])
+  staff            Staff?             @relation(fields: [staffId], references: [id])
+  statusLogs       BookingStatusLog[]
+
+  @@index([shopId, bookingDate])
+  @@index([customerId])
+  @@index([customerId, bookingDate])
+  @@index([staffId])
+  @@index([bookingNumber])
+  @@index([status])
+  @@map("bookings")
+}
+
+// ============================================
+// 9. BOOKING_STATUS_LOGS — ประวัติการเปลี่ยนสถานะ
+// ============================================
+
+model BookingStatusLog {
+  id          String        @id @default(uuid())
+  bookingId   String
+  fromStatus  String?                                   // สถานะก่อนหน้า (null = first status)
+  toStatus    String                                     // สถานะใหม่
+  changedBy   String?                                     // ผู้เปลี่ยน (admin/staff ID หรือ "system")
+  note        String?                                     // หมายเหตุ
+  createdAt   DateTime      @default(now())
+
+  // Relations
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([createdAt])
+  @@map("booking_status_logs")
+}
+
+// ============================================
+// 10. ADMIN_USERS — ผู้ดูแลระบบ
+// ============================================
+
+model AdminUser {
+  id            String    @id @default(uuid())
+  shopId        String?
+  email         String    @unique
+  passwordHash  String                                    // bcrypt hash
+  firstName     String
+  lastName      String
+  role          String    @default("STAFF")
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
+  lastLoginIp   String?
+  refreshToken  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  shop Shop? @relation(fields: [shopId], references: [id])
+
+  @@index([shopId])
+  @@index([email])
+  @@map("admin_users")
+}
+
+// ============================================
+// 11. BOOKING_SETTINGS — ตั้งค่าการจอง
+// ============================================
+
+model BookingSetting {
+  id                    String   @id @default(uuid())
+  shopId                String
+  key                   String                                  // setting key
+  value                 String                                  // setting value (JSON string)
+  description           String?                                 // คำอธิบาย
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, key])
+  @@index([shopId])
+  @@map("booking_settings")
+}
+
+// ============================================
+// 12. SPECIAL_HOLIDAYS — วันหยุดพิเศษ
+// ============================================
+
+model SpecialHoliday {
+  id          String   @id @default(uuid())
+  shopId      String
+  name        String                                    // ชื่อวันหยุด
+  date        DateTime                                   // วันที่
+  isFullDay   Boolean  @default(true)                   // หยุดทั้งวัน?
+  startTime   String?                                   // เวลาเริ่ม (ถ้าไม่เต็มวัน)
+  endTime     String?                                   // เวลาสิ้นสุด (ถ้าไม่เต็มวัน)
+  description String?                                   // รายละเอียด
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, date])
+  @@map("special_holidays")
+}

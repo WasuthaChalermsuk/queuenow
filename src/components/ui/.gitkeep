@@ -1,0 +1,7 @@
+// ============================================
+// QueueNow — shadcn/ui components
+// ติดตั้งด้วย: npx shadcn-ui@latest add button
+// ============================================
+
+// Components will be added here by shadcn CLI
+// Run: npx shadcn-ui@latest add button card input label ...
