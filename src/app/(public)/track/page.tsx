@@ -1,16 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Loader2, AlertCircle, Clock, CheckCircle, XCircle } from "lucide-react";
 
-const STATUS_ICONS: Record<string, React.ReactNode> = {
-  PENDING: <Clock className="w-5 h-5 text-yellow-400" />,
-  CONFIRMED: <CheckCircle className="w-5 h-5 text-green-400" />,
-  ARRIVED: <CheckCircle className="w-5 h-5 text-blue-400" />,
-  SERVING: <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />,
-  COMPLETED: <CheckCircle className="w-5 h-5 text-emerald-400" />,
-  CANCELLED: <XCircle className="w-5 h-5 text-red-400" />,
-  NO_SHOW: <XCircle className="w-5 h-5 text-orange-400" />,
+// ============================================
+// Track Queue Page
+// Anti-AI: asymmetric layout, amber accents, organic elements
+// ============================================
+
+const STATUS_ICONS: Record<string, string> = {
+  PENDING: "schedule",
+  CONFIRMED: "check_circle",
+  ARRIVED: "check_circle",
+  SERVING: "progress_activity",
+  COMPLETED: "check_circle",
+  CANCELLED: "cancel",
+  NO_SHOW: "cancel",
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  PENDING: "text-primary",
+  CONFIRMED: "text-teal-400",
+  ARRIVED: "text-blue-400",
+  SERVING: "text-primary",
+  COMPLETED: "text-teal-400",
+  CANCELLED: "text-red-400",
+  NO_SHOW: "text-orange-400",
+};
+
+const STATUS_BG: Record<string, string> = {
+  PENDING: "bg-primary/10 border-primary/20",
+  CONFIRMED: "bg-teal-500/10 border-teal-500/20",
+  ARRIVED: "bg-blue-500/10 border-blue-500/20",
+  SERVING: "bg-primary/10 border-primary/20",
+  COMPLETED: "bg-teal-500/10 border-teal-500/20",
+  CANCELLED: "bg-red-500/10 border-red-500/20",
+  NO_SHOW: "bg-orange-500/10 border-orange-500/20",
 };
 
 const STATUS_TEXT: Record<string, string> = {
@@ -67,19 +91,29 @@ export default function TrackPage() {
     }
   }
 
-  const statusIcon = booking ? STATUS_ICONS[booking.status] || <Clock className="w-5 h-5 text-slate-400" /> : null;
+  const statusIcon = booking ? STATUS_ICONS[booking.status] || "schedule" : null;
   const statusText = booking ? STATUS_TEXT[booking.status] || booking.status : "";
+  const statusColor = booking ? STATUS_COLORS[booking.status] || "text-muted-foreground" : "";
+  const statusBg = booking ? STATUS_BG[booking.status] || "bg-slate-500/10 border-slate-500/20" : "";
+  const isServing = booking?.status === "SERVING";
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-start pt-20 px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-start pt-20 px-4">
+      {/* Organic blob accent */}
+      <div className="fixed top-0 right-0 w-80 h-80 bg-primary/[0.03] blob-static pointer-events-none" />
+
+      <div className="w-full max-w-md relative z-10">
         {/* Header */}
-        <div className="text-center mb-8">
-          <span className="material-symbols-outlined text-5xl text-blue-400 mb-3 block">
-            manage_search
-          </span>
-          <h1 className="text-2xl font-bold mb-2">ติดตามสถานะคิว</h1>
-          <p className="text-slate-400 text-sm">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="w-8 h-px bg-primary/40" />
+            <span className="text-xs font-medium text-primary uppercase tracking-widest">ติดตาม</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-4xl text-primary">manage_search</span>
+            <h1 className="text-2xl font-bold text-foreground">ติดตามสถานะคิว</h1>
+          </div>
+          <p className="text-muted-foreground text-sm mt-2">
             กรอกเลขคิวหรือหมายเลขอ้างอิงเพื่อดูสถานะ
           </p>
         </div>
@@ -87,83 +121,92 @@ export default function TrackPage() {
         {/* Search form */}
         <form onSubmit={handleSearch} className="flex gap-2 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-base text-muted-foreground">
+              search
+            </span>
             <input
               value={refNumber}
               onChange={(e) => setRefNumber(e.target.value)}
               placeholder="เลขคิว เช่น QN-0001"
-              className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-card border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30"
             />
           </div>
           <button
             type="submit"
             disabled={loading || !refNumber.trim()}
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
+            className="px-5 py-2.5 bg-primary hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg text-sm font-semibold text-primary-foreground transition-colors flex items-center gap-1.5"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "ค้นหา"}
+            {loading ? (
+              <span className="material-symbols-outlined material-icon-spin text-base">progress_activity</span>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-base">search</span>
+                ค้นหา
+              </>
+            )}
           </button>
         </form>
 
         {/* Results */}
         {error && (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span className="material-symbols-outlined text-base shrink-0">error_outline</span>
             {error}
           </div>
         )}
 
         {searched && !error && !booking && (
-          <div className="text-center py-10 text-slate-500">
-            <span className="material-symbols-outlined text-4xl mb-2 block">search_off</span>
-            ไม่พบข้อมูลสำหรับเลขคิวนี้
+          <div className="text-center py-12">
+            <span className="material-symbols-outlined text-5xl text-muted-foreground/60 mb-3 block">search_off</span>
+            <p className="text-muted-foreground">ไม่พบข้อมูลสำหรับเลขคิวนี้</p>
           </div>
         )}
 
         {booking && (
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+          <div className="rounded-xl bg-card border border-border p-5 space-y-4" style={{ transform: "rotate(-0.1deg)" }}>
             {/* Status banner */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-400">สถานะ</span>
-              <span className="flex items-center gap-1.5 text-sm font-semibold">
-                {statusIcon}
+            <div className={`flex items-center justify-between p-3 rounded-lg border ${statusBg}`}>
+              <span className="text-sm text-muted-foreground">สถานะ</span>
+              <span className={`flex items-center gap-1.5 text-sm font-semibold ${statusColor}`}>
+                <span className={`material-symbols-outlined text-lg ${isServing ? "material-icon-spin" : ""}`}>
+                  {statusIcon}
+                </span>
                 {statusText}
               </span>
             </div>
 
-            <hr className="border-slate-800" />
-
             {/* Details */}
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-400">เลขคิว</span>
-                <span className="font-mono font-semibold">{booking.bookingNumber}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">เลขคิว</span>
+                <span className="font-mono font-semibold text-foreground">{booking.bookingNumber}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">วันที่</span>
-                <span>{booking.bookingDate?.split("T")[0]}</span>
+                <span className="text-muted-foreground">วันที่</span>
+                <span className="text-foreground/90">{booking.bookingDate?.split("T")[0]}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">เวลา</span>
-                <span>{booking.timeSlot}</span>
+                <span className="text-muted-foreground">เวลา</span>
+                <span className="text-foreground/90 font-mono">{booking.timeSlot}</span>
               </div>
               {booking.service && (
                 <div className="flex justify-between">
-                  <span className="text-slate-400">บริการ</span>
-                  <span>{booking.service.name}</span>
+                  <span className="text-muted-foreground">บริการ</span>
+                  <span className="text-foreground/90">{booking.service.name}</span>
                 </div>
               )}
               {booking.staff && (
                 <div className="flex justify-between">
-                  <span className="text-slate-400">พนักงาน</span>
-                  <span>
+                  <span className="text-muted-foreground">พนักงาน</span>
+                  <span className="text-foreground/90">
                     {booking.staff.firstName} {booking.staff.lastName}
                   </span>
                 </div>
               )}
               {booking.shop && (
                 <div className="flex justify-between">
-                  <span className="text-slate-400">สาขา</span>
-                  <span>{booking.shop.name}</span>
+                  <span className="text-muted-foreground">สาขา</span>
+                  <span className="text-foreground/90">{booking.shop.name}</span>
                 </div>
               )}
             </div>

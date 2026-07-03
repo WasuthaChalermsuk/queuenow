@@ -3,121 +3,130 @@
 @tailwind utilities;
 
 /* ============================================
-   QueueNow Design System — Dark Theme Default
+   QueueNow Design System — Deep Teal · Light-First
    ============================================ */
 
 @layer base {
   :root {
-    /* ----- Dark Theme (default) ----- */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* ----- Light Mode (default) — Warm White + Deep Teal ----- */
+    --background: 40 20% 98%;        /* #FAFAF9 */
+    --foreground: 30 10% 10%;        /* #1C1917 */
 
-    --card: 222.2 84% 6.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%;               /* #FFFFFF */
+    --card-foreground: 30 10% 10%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 10% 10%;
 
-    /* Primary: Electric Blue (#3B82F6) */
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Primary: Deep Teal (#0F766E) */
+    --primary: 175 75% 26%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Slate */
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary: Warm stone */
+    --secondary: 30 10% 95%;         /* #F5F5F4 */
+    --secondary-foreground: 30 10% 20%;
 
     /* Muted */
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 30 10% 95%;
+    --muted-foreground: 30 6% 45%;   /* #78716C */
 
-    /* Accent: Indigo */
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent */
+    --accent: 175 75% 26%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Destructive: Red */
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive */
+    --destructive: 0 72% 51%;        /* #DC2626 */
+    --destructive-foreground: 0 0% 100%;
 
     /* Borders & Inputs */
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --border: 30 10% 90%;            /* #E7E5E4 */
+    --input: 30 10% 90%;
+    --ring: 175 75% 26%;             /* Teal focus ring */
 
     /* Radius */
     --radius: 0.75rem;
 
-    /* QueueNow Brand Tokens */
-    --brand-primary: #3b82f6;
-    --brand-primary-hover: #2563eb;
-    --brand-primary-light: #dbeafe;
-    --brand-secondary: #8b5cf6;
-    --brand-success: #10b981;
-    --brand-warning: #f59e0b;
-    --brand-danger: #ef4444;
-    --brand-info: #06b6d4;
+    /* Surface Colors */
+    --surface-ground: #FAFAF9;
+    --surface-card: #FFFFFF;
+    --surface-overlay: #FFFFFF;
+    --surface-border: #E7E5E4;
+    --surface-hover: #F5F5F4;
+
+    /* Brand Tokens */
+    --brand-primary: #0F766E;
+    --brand-primary-hover: #0D6B63;
+    --brand-primary-light: #F0FDFA;
+
+    /* Semantic */
+    --brand-success: #059669;
+    --brand-success-light: #ECFDF5;
+    --brand-warning: #D97706;
+    --brand-warning-light: #FFFBEB;
+    --brand-danger: #DC2626;
+    --brand-danger-light: #FEF2F2;
+    --brand-info: #0284C7;
+    --brand-info-light: #F0F9FF;
 
     /* Status Colors */
-    --status-pending: #f59e0b;
-    --status-confirmed: #3b82f6;
-    --status-arrived: #8b5cf6;
-    --status-serving: #06b6d4;
-    --status-completed: #10b981;
-    --status-cancelled: #ef4444;
-    --status-no-show: #6b7280;
-
-    /* Surface Colors */
-    --surface-ground: #0f172a;
-    --surface-card: #1e293b;
-    --surface-overlay: #1e293b;
-    --surface-border: #334155;
-    --surface-hover: #1e293b;
+    --status-pending: #D97706;
+    --status-confirmed: #059669;
+    --status-arrived: #7C3AED;
+    --status-serving: #0F766E;
+    --status-completed: #0891B2;
+    --status-cancelled: #DC2626;
+    --status-no-show: #78716C;
 
     /* Typography */
     --font-sans: "Noto Sans Thai", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
     --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.06);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.10);
   }
 
-  /* ----- Light Theme Override ----- */
-  .light {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+  /* ----- Dark Mode ----- */
+  .dark {
+    --background: 0 0% 4%;           /* #0C0D0F */
+    --foreground: 40 20% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 8%;                 /* #141517 */
+    --card-foreground: 40 20% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 40 20% 98%;
 
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 175 70% 41%;          /* #14B8A6 */
+    --primary-foreground: 0 0% 4%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 40 20% 94%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 30 6% 55%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 175 70% 41%;
+    --accent-foreground: 0 0% 4%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --border: 0 0% 16%;              /* #27282B */
+    --input: 0 0% 16%;
+    --ring: 175 70% 41%;
 
-    --surface-ground: #f8fafc;
-    --surface-card: #ffffff;
-    --surface-overlay: #ffffff;
-    --surface-border: #e2e8f0;
-    --surface-hover: #f1f5f9;
+    --surface-ground: #0C0D0F;
+    --surface-card: #141517;
+    --surface-overlay: #141517;
+    --surface-border: #27282B;
+    --surface-hover: #1A1C1E;
+
+    --brand-primary: #14B8A6;
+    --brand-primary-hover: #2DD4BF;
+    --brand-primary-light: #042F2E;
   }
 }
 
@@ -158,25 +167,25 @@
 
   /* Status Badges */
   .badge-pending {
-    @apply bg-warning/20 text-warning border border-warning/30;
+    @apply bg-amber-100 text-amber-700 border border-amber-200;
   }
   .badge-confirmed {
-    @apply bg-primary/20 text-primary border border-primary/30;
+    @apply bg-emerald-100 text-emerald-700 border border-emerald-200;
   }
   .badge-arrived {
-    @apply bg-brand-secondary/20 text-brand-secondary border border-brand-secondary/30;
+    @apply bg-violet-100 text-violet-700 border border-violet-200;
   }
   .badge-serving {
-    @apply bg-brand-info/20 text-brand-info border border-brand-info/30;
+    @apply bg-teal-100 text-teal-700 border border-teal-200;
   }
   .badge-completed {
-    @apply bg-success/20 text-success border border-success/30;
+    @apply bg-cyan-100 text-cyan-700 border border-cyan-200;
   }
   .badge-cancelled {
-    @apply bg-danger/20 text-danger border border-danger/30;
+    @apply bg-red-100 text-red-700 border border-red-200;
   }
   .badge-no-show {
-    @apply bg-muted text-muted-foreground border;
+    @apply bg-stone-100 text-stone-500 border border-stone-200;
   }
 
   /* Step Indicator */
@@ -184,10 +193,10 @@
     @apply bg-primary text-primary-foreground;
   }
   .step-completed {
-    @apply bg-success text-white;
+    @apply bg-emerald-600 text-white;
   }
   .step-inactive {
-    @apply bg-muted text-muted-foreground;
+    @apply bg-secondary text-muted-foreground;
   }
 }
 
@@ -217,6 +226,87 @@
     background-color: hsl(var(--muted));
     border-radius: 3px;
   }
+}
+
+/* ============================================
+   Anti-AI Design Techniques
+   ============================================ */
+
+/* Noise texture overlay — adds organic grain */
+.noise-overlay {
+  position: relative;
+}
+.noise-overlay::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Organic blob decorations */
+.blob {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  animation: blob-morph 12s ease-in-out infinite alternate;
+}
+.blob-slow {
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  animation: blob-morph 18s ease-in-out infinite alternate-reverse;
+}
+.blob-static {
+  border-radius: 55% 45% 35% 65% / 50% 60% 40% 50%;
+}
+
+@keyframes blob-morph {
+  0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25% { border-radius: 40% 60% 70% 30% / 50% 60% 30% 60%; }
+  50% { border-radius: 30% 60% 55% 45% / 45% 55% 65% 35%; }
+  75% { border-radius: 65% 35% 40% 60% / 35% 65% 55% 45%; }
+  100% { border-radius: 55% 45% 60% 40% / 60% 40% 50% 50%; }
+}
+
+/* Asymmetric card tilt — reduced for calmer feel */
+.card-tilt-1 { transform: rotate(-0.2deg); }
+.card-tilt-2 { transform: rotate(0.15deg); }
+.card-tilt-3 { transform: rotate(-0.1deg); }
+@media (min-width: 768px) {
+  .card-tilt-1:hover { transform: rotate(-0.4deg) translateY(-2px); }
+  .card-tilt-2:hover { transform: rotate(0.3deg) translateY(-2px); }
+  .card-tilt-3:hover { transform: rotate(-0.2deg) translateY(-2px); }
+}
+
+/* Material Icons — animated spinner */
+.material-icon-spin {
+  animation: material-spin 1.5s linear infinite;
+  display: inline-block;
+}
+@keyframes material-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Border-left accent for selected items */
+.border-l-accent-teal {
+  border-left: 3px solid var(--brand-primary);
+}
+
+/* Glass morphism bottom bar */
+.glass-bar {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.dark .glass-bar {
+  background: rgba(12, 13, 15, 0.85);
+}
+
+/* Step indicator */
+.step-dot {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* ============================================

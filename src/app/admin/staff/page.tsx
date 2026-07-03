@@ -1,15 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  Loader2,
-  Plus,
-  Pencil,
-  Trash2,
-  AlertCircle,
-  UserCircle,
-  Users,
-} from "lucide-react";
 
 interface StaffMember {
   id: string;
@@ -39,16 +30,8 @@ interface StaffMember {
 }
 
 const PRESET_COLORS = [
-  "#3b82f6",
-  "#8b5cf6",
-  "#ec4899",
-  "#ef4444",
-  "#f97316",
-  "#eab308",
-  "#22c55e",
-  "#14b8a6",
-  "#06b6d4",
-  "#6366f1",
+  "#0F766E", "#8b5cf6", "#ec4899", "#ef4444", "#f97316",
+  "#eab308", "#22c55e", "#14b8a6", "#06b6d4", "#6366f1",
 ];
 
 export default function AdminStaffPage() {
@@ -63,7 +46,7 @@ export default function AdminStaffPage() {
     firstName: "",
     lastName: "",
     nickname: "",
-    color: "#3b82f6",
+    color: "#0F766E",
   });
 
   const token =
@@ -107,7 +90,7 @@ export default function AdminStaffPage() {
 
   function openAddForm() {
     setEditId(null);
-    setForm({ firstName: "", lastName: "", nickname: "", color: "#3b82f6" });
+    setForm({ firstName: "", lastName: "", nickname: "", color: "#0F766E" });
     setShowForm(true);
   }
 
@@ -117,7 +100,7 @@ export default function AdminStaffPage() {
       firstName: s.firstName,
       lastName: s.lastName,
       nickname: s.nickname || "",
-      color: s.color || "#3b82f6",
+      color: s.color || "#F0A500",
     });
     setShowForm(true);
   }
@@ -196,78 +179,79 @@ export default function AdminStaffPage() {
     }
   }
 
-  // --- Loading State ---
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
+          <span className="text-sm text-muted-foreground">กำลังโหลด...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="animate-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">พนักงาน</h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold tracking-tight">พนักงาน</h1>
+          <p className="text-muted-foreground text-sm mt-1 font-light">
             จัดการข้อมูลพนักงานของร้าน
           </p>
         </div>
         <button
           onClick={openAddForm}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-500 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all duration-200 relative overflow-hidden group/btn"
         >
-          <Plus className="w-4 h-4" />
-          เพิ่มพนักงาน
+          <span className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
+          <span className="relative z-10 flex items-center gap-2">
+            <span className="material-symbols-outlined text-lg">person_add</span>
+            เพิ่มพนักงาน
+          </span>
         </button>
       </div>
 
       {/* Error Banner */}
       {error && (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span className="material-symbols-outlined text-base shrink-0">error</span>
           {error}
         </div>
       )}
 
       {/* Empty State */}
       {!loading && staff.length === 0 && (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-12 text-center">
-          <Users className="w-16 h-16 mx-auto mb-4 text-slate-600" />
-          <h3 className="text-lg font-medium text-slate-300 mb-1">
-            ยังไม่มีพนักงาน
-          </h3>
-          <p className="text-sm text-slate-500 mb-6">
-            เพิ่มพนักงานคนแรกเพื่อเริ่มต้นจัดการระบบจองคิว
-          </p>
+        <div className="bg-card border border-border rounded-xl p-12 text-center">
+          <span className="material-symbols-outlined text-6xl mb-4 block text-muted-foreground/30">group</span>
+          <h3 className="text-lg font-medium text-foreground/80 mb-1">ยังไม่มีพนักงาน</h3>
+          <p className="text-sm text-muted-foreground mb-6">เพิ่มพนักงานคนแรกเพื่อเริ่มต้นจัดการระบบจองคิว</p>
           <button
             onClick={openAddForm}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-500 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
           >
-            <Plus className="w-4 h-4" />
+            <span className="material-symbols-outlined text-lg">person_add</span>
             เพิ่มพนักงาน
           </button>
         </div>
       )}
 
-      {/* Staff Grid */}
+      {/* Staff Grid — asymmetric staggered */}
       {staff.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {staff.map((s) => (
+          {staff.map((s, i) => (
             <div
               key={s.id}
-              className={`bg-slate-900 border rounded-xl p-5 hover:border-slate-700 transition-colors ${
-                s.isActive ? "border-slate-800" : "border-slate-800/50 opacity-60"
+              className={`bg-card border rounded-xl p-5 hover:border-primary/20 transition-all duration-200 group ${
+                s.isActive ? "border-border" : "border-border/50 opacity-60"
               }`}
+              style={{ transform: `rotate(${(i % 3 - 1) * 0.6}deg)` }}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  {/* Avatar */}
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0"
-                    style={{ backgroundColor: s.color }}
+                    style={{ backgroundColor: s.color || "#0F766E" }}
                   >
                     {s.nickname?.[0] || s.firstName[0]}
                   </div>
@@ -276,19 +260,18 @@ export default function AdminStaffPage() {
                       {s.firstName} {s.lastName}
                     </div>
                     {s.nickname && (
-                      <div className="text-sm text-slate-400">
+                      <div className="text-sm text-muted-foreground">
                         &ldquo;{s.nickname}&rdquo;
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Status Badge */}
                 <span
                   className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border ${
                     s.isActive
-                      ? "bg-green-500/10 text-green-400 border-green-500/20"
-                      : "bg-slate-500/10 text-slate-500 border-slate-500/20"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      : "bg-slate-500/10 text-muted-foreground border-slate-500/20"
                   }`}
                 >
                   {s.isActive ? "ทำงาน" : "พัก"}
@@ -296,10 +279,10 @@ export default function AdminStaffPage() {
               </div>
 
               {/* Stats Row */}
-              <div className="flex items-center gap-4 text-xs text-slate-500 mb-4">
+              <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
                 <span>
                   จองแล้ว{" "}
-                  <strong className="text-slate-300">{s._count.bookings}</strong>{" "}
+                  <strong className="text-foreground/80 font-mono">{s._count.bookings}</strong>{" "}
                   ครั้ง
                 </span>
               </div>
@@ -324,12 +307,12 @@ export default function AdminStaffPage() {
               )}
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-1 pt-3 border-t border-slate-800">
+              <div className="flex items-center gap-1 pt-3 border-t border-border">
                 <button
                   onClick={() => openEditForm(s)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
                 >
-                  <Pencil className="w-3.5 h-3.5" />
+                  <span className="material-symbols-outlined text-sm">edit</span>
                   แก้ไข
                 </button>
                 <button
@@ -337,12 +320,12 @@ export default function AdminStaffPage() {
                     handleDelete(s.id, `${s.firstName} ${s.lastName}`)
                   }
                   disabled={deletingId === s.id}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                 >
                   {deletingId === s.id ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <div className="animate-spin rounded-full h-3.5 w-3.5 border border-red-400/30 border-t-red-400" />
                   ) : (
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <span className="material-symbols-outlined text-sm">delete</span>
                   )}
                   ลบ
                 </button>
@@ -355,22 +338,22 @@ export default function AdminStaffPage() {
       {/* Modal Form */}
       {showForm && (
         <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
           onClick={() => setShowForm(false)}
         >
           <div
-            className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md animate-in"
+            className="bg-card border border-border rounded-2xl p-6 w-full max-w-md animate-in shadow-xl shadow-black/30"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center">
-                <UserCircle className="w-5 h-5 text-blue-400" />
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary">person</span>
               </div>
               <div>
                 <h2 className="text-lg font-bold">
                   {editId ? "แก้ไขพนักงาน" : "เพิ่มพนักงานใหม่"}
                 </h2>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                   {editId
                     ? "อัปเดตข้อมูลพนักงาน"
                     : "กรอกข้อมูลเพื่อเพิ่มพนักงาน"}
@@ -379,9 +362,8 @@ export default function AdminStaffPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* First Name */}
               <div>
-                <label className="block text-sm font-medium mb-1.5 text-slate-300">
+                <label className="block text-sm font-medium mb-1.5 text-foreground/70">
                   ชื่อ <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -391,13 +373,12 @@ export default function AdminStaffPage() {
                   }
                   required
                   placeholder="สมชาย"
-                  className="w-full px-3 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-sm placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  className="w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
                 />
               </div>
 
-              {/* Last Name */}
               <div>
-                <label className="block text-sm font-medium mb-1.5 text-slate-300">
+                <label className="block text-sm font-medium mb-1.5 text-foreground/70">
                   นามสกุล <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -407,13 +388,12 @@ export default function AdminStaffPage() {
                   }
                   required
                   placeholder="ใจดี"
-                  className="w-full px-3 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-sm placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  className="w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
                 />
               </div>
 
-              {/* Nickname */}
               <div>
-                <label className="block text-sm font-medium mb-1.5 text-slate-300">
+                <label className="block text-sm font-medium mb-1.5 text-foreground/70">
                   ชื่อเล่น
                 </label>
                 <input
@@ -422,13 +402,13 @@ export default function AdminStaffPage() {
                     setForm({ ...form, nickname: e.target.value })
                   }
                   placeholder="บอย"
-                  className="w-full px-3 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-sm placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  className="w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
                 />
               </div>
 
               {/* Color Picker */}
               <div>
-                <label className="block text-sm font-medium mb-1.5 text-slate-300">
+                <label className="block text-sm font-medium mb-1.5 text-foreground/70">
                   สีประจำตัว
                 </label>
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -439,7 +419,7 @@ export default function AdminStaffPage() {
                       onClick={() => setForm({ ...form, color: c })}
                       className={`w-8 h-8 rounded-full border-2 transition-all ${
                         form.color === c
-                          ? "border-white scale-110"
+                          ? "border-white scale-110 shadow-lg shadow-white/20"
                           : "border-transparent hover:scale-105"
                       }`}
                       style={{ backgroundColor: c }}
@@ -453,7 +433,7 @@ export default function AdminStaffPage() {
                     onChange={(e) =>
                       setForm({ ...form, color: e.target.value })
                     }
-                    className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 cursor-pointer p-0.5"
+                    className="w-10 h-10 rounded-lg bg-background border border-border cursor-pointer p-0.5"
                   />
                   <input
                     type="text"
@@ -461,28 +441,27 @@ export default function AdminStaffPage() {
                     onChange={(e) =>
                       setForm({ ...form, color: e.target.value })
                     }
-                    className="flex-1 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                    className="flex-1 px-3 py-2 rounded-lg bg-background border border-border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                   />
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="flex gap-3 justify-end pt-2">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-4 py-2.5 rounded-lg bg-slate-800 text-sm font-medium hover:bg-slate-700 transition-colors"
+                  className="px-4 py-2.5 rounded-lg border border-border text-sm font-medium hover:bg-secondary transition-colors"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-500 transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground" />
                       กำลังบันทึก...
                     </>
                   ) : (

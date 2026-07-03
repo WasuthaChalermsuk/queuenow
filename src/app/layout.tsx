@@ -45,8 +45,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0C0D0F" },
+    { media: "(prefers-color-scheme: light)", color: "#FAFAF9" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -83,11 +83,13 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
+          <div className="noise-overlay">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>

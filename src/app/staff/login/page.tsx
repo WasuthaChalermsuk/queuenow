@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogIn, AlertCircle, Loader2 } from "lucide-react";
 
 export default function StaffLoginPage() {
   const router = useRouter();
@@ -41,68 +40,85 @@ export default function StaffLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      {/* Organic blob background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
+        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px] animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#2DD4BF]/5 blur-[100px]" style={{ animationDelay: "2s" }} />
+        <div className="absolute top-1/3 right-1/4 w-[350px] h-[350px] rounded-full bg-primary/3 blur-[80px]" style={{ animationDelay: "1.5s" }} />
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: "linear-gradient(rgba(15,118,110,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(15,118,110,0.2) 1px, transparent 1px)",
+            backgroundSize: "60px 60px",
+          }}
+        />
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        <div className="bg-card border border-border rounded-2xl p-8 space-y-6 shadow-xl shadow-black/20 transition-all duration-300 hover:border-primary/20 hover:shadow-primary/5 group">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-600/10 mb-4">
-              <LogIn className="w-8 h-8 text-emerald-400" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4 relative">
+              <span className="material-symbols-outlined text-3xl text-primary">badge</span>
+              <div className="absolute inset-0 rounded-2xl border border-primary/20 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
             </div>
-            <h1 className="text-xl font-bold">เข้าสู่ระบบพนักงาน</h1>
-            <p className="text-sm text-slate-400 mt-1">QueueNow Staff Portal</p>
+            <h1 className="text-xl font-bold tracking-tight">เข้าสู่ระบบพนักงาน</h1>
+            <p className="text-sm text-muted-foreground mt-1 font-light">QueueNow Staff Portal</p>
           </div>
 
           {error && (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span className="material-symbols-outlined text-base shrink-0">error</span>
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-slate-300">
-                อีเมล
-              </label>
+              <label className="block text-sm font-medium mb-1.5 text-foreground/70">อีเมล</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="staff@example.com"
                 required
-                className="w-full px-3 py-2.5 rounded-lg border border-slate-700 bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 placeholder:text-slate-600"
+                className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 placeholder:text-muted-foreground/40 transition-all duration-200"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-slate-300">
-                รหัสผ่าน
-              </label>
+              <label className="block text-sm font-medium mb-1.5 text-foreground/70">รหัสผ่าน</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full px-3 py-2.5 rounded-lg border border-slate-700 bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50"
+                className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-500 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 group/btn relative overflow-hidden"
             >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <LogIn className="w-4 h-4" />
-              )}
-              {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
+              <span className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
+              <span className="relative z-10 flex items-center gap-2">
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground" />
+                    กำลังเข้าสู่ระบบ...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-lg">login</span>
+                    เข้าสู่ระบบ
+                  </>
+                )}
+              </span>
             </button>
           </form>
         </div>
-        <p className="text-center text-xs text-slate-600 mt-6">
-          © 2026 KimDev Studio
-        </p>
+        <p className="text-center text-xs text-muted-foreground/50 mt-6 font-mono">© 2026 KimDev Studio</p>
       </div>
     </div>
   );

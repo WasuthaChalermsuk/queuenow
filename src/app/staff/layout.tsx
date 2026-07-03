@@ -3,13 +3,6 @@
 import { useState, useEffect, ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import {
-  CalendarCheck,
-  LogOut,
-  Menu,
-  X,
-  ChevronLeft,
-} from "lucide-react";
 
 export default function StaffLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -44,93 +37,103 @@ export default function StaffLayout({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
+          <span className="text-sm text-muted-foreground animate-pulse">กำลังโหลด...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
+    <div className="min-h-screen bg-background flex">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 flex flex-col transition-transform ${
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-background border-r border-border flex flex-col transition-transform ${
           sidebarOpen
             ? "translate-x-0"
             : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="h-14 flex items-center justify-between px-4 border-b border-slate-800">
-          <Link href="/staff" className="flex items-center gap-2 font-bold text-lg">
-            <CalendarCheck className="w-5 h-5 text-emerald-400" />
-            <span>QueueNow</span>
+        <div className="h-14 flex items-center justify-between px-4 border-b border-border">
+          <Link href="/staff" className="flex items-center gap-2.5 font-bold text-lg group">
+            <span className="material-symbols-outlined text-primary text-2xl transition-transform group-hover:scale-110">event_available</span>
+            <span className="tracking-tight">QueueNow</span>
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-slate-400 hover:text-white"
+            className="lg:hidden text-muted-foreground hover:text-foreground transition-colors"
           >
-            <X className="w-5 h-5" />
+            <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 space-y-0.5">
           <Link
             href="/staff"
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+            onClick={() => setSidebarOpen(false)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
               pathname === "/staff"
-                ? "bg-emerald-600/20 text-emerald-400"
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
+                ? "bg-primary/10 text-primary border-l-[3px] border-primary pl-[9px]"
+                : "text-muted-foreground hover:text-foreground hover:bg-card border-l-[3px] border-transparent pl-[9px]"
             }`}
           >
-            <CalendarCheck className="w-4 h-4" />
+            <span className={`material-symbols-outlined text-xl ${pathname === "/staff" ? "text-primary" : "text-muted-foreground"} transition-colors`}>
+              event_available
+            </span>
             ตารางคิวของฉัน
           </Link>
         </nav>
 
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t border-border">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-sm font-bold">
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-sm font-bold text-primary-foreground">
               {user?.firstName?.[0] || "S"}
             </div>
             <div className="text-sm">
               <div className="font-medium">{user?.firstName || "พนักงาน"}</div>
-              <div className="text-xs text-slate-500">{user?.role || ""}</div>
+              <div className="text-xs text-muted-foreground">{user?.role || ""}</div>
             </div>
           </div>
           <button
             onClick={logout}
-            className="flex items-center gap-2 text-sm text-slate-400 hover:text-red-400 transition-colors w-full"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-red-400 transition-colors w-full group"
           >
-            <LogOut className="w-4 h-4" />
+            <span className="material-symbols-outlined text-lg group-hover:text-red-400">logout</span>
             ออกจากระบบ
           </button>
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 border-b border-slate-800 flex items-center px-4 gap-3 lg:px-6 bg-slate-900/50">
+        <header className="h-14 border-b border-border flex items-center px-4 gap-3 lg:px-6 bg-background/80 backdrop-blur-sm">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden text-slate-400 hover:text-white"
+            className="lg:hidden text-muted-foreground hover:text-foreground transition-colors"
           >
-            <Menu className="w-5 h-5" />
+            <span className="material-symbols-outlined">menu</span>
           </button>
           <Link
             href="/"
-            className="text-sm text-slate-400 hover:text-white flex items-center gap-1"
+            className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <span className="material-symbols-outlined text-sm">chevron_left</span>
             หน้าร้าน
           </Link>
+          <div className="flex-1" />
+          <div className="text-xs text-muted-foreground font-mono hidden sm:block">
+            QueueNow v1.0
+          </div>
         </header>
         <main className="flex-1 p-4 lg:p-6 overflow-auto">{children}</main>
       </div>

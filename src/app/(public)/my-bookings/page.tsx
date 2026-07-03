@@ -1,26 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  Loader2,
-  AlertCircle,
-  Search,
-  Phone,
-  Mail,
-  CalendarDays,
-  Clock,
-  Scissors,
-  User,
-  XCircle,
-  ChevronLeft,
-  History,
-  ArrowUpRight,
-  MapPin,
-} from "lucide-react";
 
 // ============================================
-// Types
+// My Bookings Page
+// Anti-AI: amber accents, staggered cards, glass elements
 // ============================================
+
+// Types
 interface BookingItem {
   id: string;
   bookingDate: string;
@@ -74,13 +61,13 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  CONFIRMED: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  ARRIVED: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  SERVING: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-  COMPLETED: "bg-green-500/10 text-green-400 border-green-500/20",
+  PENDING: "bg-primary/10 text-primary border-primary/20",
+  CONFIRMED: "bg-teal-500/10 text-teal-400 border-teal-500/20",
+  ARRIVED: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+  SERVING: "bg-primary/10 text-primary border-primary/20",
+  COMPLETED: "bg-teal-500/10 text-teal-400 border-teal-500/20",
   CANCELLED: "bg-red-500/10 text-red-400 border-red-500/20",
-  NO_SHOW: "bg-slate-500/10 text-slate-400 border-slate-500/20",
+  NO_SHOW: "bg-slate-500/10 text-muted-foreground border-slate-500/20",
 };
 
 const CAN_CANCEL_STATUSES = ["PENDING", "CONFIRMED"];
@@ -112,7 +99,6 @@ export default function MyBookingsPage() {
         if (parsed.method) setLookupMethod(parsed.method);
         if (parsed.value) {
           setLookupValue(parsed.value);
-          // Auto-search
           performSearch(parsed.method, parsed.value);
         }
       } catch {}
@@ -130,7 +116,6 @@ export default function MyBookingsPage() {
       setLoading(true);
       setIsSearching(true);
 
-      // Save to localStorage
       localStorage.setItem(
         "customer_lookup",
         JSON.stringify({ method: m, value: v })
@@ -169,7 +154,6 @@ export default function MyBookingsPage() {
   function switchTab(tab: "upcoming" | "past") {
     setActiveTab(tab);
     if (isSearching) {
-      // Re-search with new tab after state update
       const params = new URLSearchParams();
       params.set(
         lookupMethod === "phone" ? "phone" : "email",
@@ -220,7 +204,6 @@ export default function MyBookingsPage() {
       const json = await res.json();
 
       if (json.success) {
-        // Update local data
         setData((prev) => {
           if (!prev) return prev;
           return {
@@ -245,19 +228,26 @@ export default function MyBookingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <div className="container mx-auto max-w-2xl px-4 py-6">
+    <div className="min-h-screen bg-background">
+      {/* Organic blob accent */}
+      <div className="fixed top-0 right-0 w-72 h-72 bg-primary/[0.03] blob-static pointer-events-none" />
+
+      <div className="container mx-auto max-w-2xl px-4 py-6 relative z-10">
         {/* Header */}
         <div className="mb-6">
           <a
             href="/"
-            className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white mb-4 transition-colors"
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <span className="material-symbols-outlined text-base">chevron_left</span>
             กลับหน้าหลัก
           </a>
-          <h1 className="text-2xl font-bold">การจองของฉัน</h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-6 h-px bg-primary/40" />
+            <span className="text-xs font-medium text-primary uppercase tracking-widest">ประวัติ</span>
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">การจองของฉัน</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             ตรวจสอบประวัติและสถานะการจองของคุณ
           </p>
         </div>
@@ -266,30 +256,31 @@ export default function MyBookingsPage() {
         {!isSearching && (
           <form
             onSubmit={handleSearch}
-            className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 mb-6"
+            className="bg-card border border-border rounded-2xl p-6 space-y-4 mb-6"
+            style={{ transform: "rotate(-0.15deg)" }}
           >
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600/10 mb-3">
-                <Search className="w-7 h-7 text-blue-400" />
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 border border-primary/10 mb-3">
+                <span className="material-symbols-outlined text-primary text-2xl">search</span>
               </div>
-              <h2 className="font-semibold text-lg">ค้นหาการจอง</h2>
-              <p className="text-sm text-slate-400 mt-1">
+              <h2 className="font-semibold text-lg text-foreground">ค้นหาการจอง</h2>
+              <p className="text-sm text-muted-foreground mt-1">
                 กรุณากรอกเบอร์โทรศัพท์หรืออีเมลที่ใช้ตอนจอง
               </p>
             </div>
 
             {/* Method Toggle */}
-            <div className="flex gap-2 p-1 bg-slate-800 rounded-lg">
+            <div className="flex gap-2 p-1 bg-background rounded-lg border border-border">
               <button
                 type="button"
                 onClick={() => setLookupMethod("phone")}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors ${
                   lookupMethod === "phone"
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Phone className="w-4 h-4" />
+                <span className="material-symbols-outlined text-base">call</span>
                 เบอร์โทร
               </button>
               <button
@@ -297,11 +288,11 @@ export default function MyBookingsPage() {
                 onClick={() => setLookupMethod("email")}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors ${
                   lookupMethod === "email"
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Mail className="w-4 h-4" />
+                <span className="material-symbols-outlined text-base">mail</span>
                 อีเมล
               </button>
             </div>
@@ -318,15 +309,15 @@ export default function MyBookingsPage() {
                     : "เช่น customer@email.com"
                 }
                 required
-                className="w-full px-4 py-3 rounded-lg border border-slate-700 bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 placeholder:text-slate-600"
+                className="w-full px-4 py-3 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 placeholder:text-muted-foreground/60"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-500 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-colors flex items-center justify-center gap-2"
             >
-              <Search className="w-4 h-4" />
+              <span className="material-symbols-outlined text-base">search</span>
               ค้นหา
             </button>
           </form>
@@ -335,7 +326,7 @@ export default function MyBookingsPage() {
         {/* Error Banner */}
         {error && (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span className="material-symbols-outlined text-base shrink-0">error_outline</span>
             {error}
             {isSearching && (
               <button
@@ -356,44 +347,44 @@ export default function MyBookingsPage() {
           <>
             {/* Lookup Info + Change */}
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2 text-sm text-slate-400">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 {lookupMethod === "phone" ? (
-                  <Phone className="w-4 h-4" />
+                  <span className="material-symbols-outlined text-base">call</span>
                 ) : (
-                  <Mail className="w-4 h-4" />
+                  <span className="material-symbols-outlined text-base">mail</span>
                 )}
                 <span>{lookupValue}</span>
               </div>
               <button
                 onClick={() => setIsSearching(false)}
-                className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                className="text-xs text-primary hover:text-primary/80 transition-colors"
               >
                 เปลี่ยน
               </button>
             </div>
 
             {/* Tab Bar */}
-            <div className="flex gap-1 bg-slate-900 border border-slate-800 rounded-xl p-1 mb-4">
+            <div className="flex gap-1 bg-card border border-border rounded-xl p-1 mb-4">
               <button
                 onClick={() => switchTab("upcoming")}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   activeTab === "upcoming"
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}
               >
-                <ArrowUpRight className="w-4 h-4" />
+                <span className="material-symbols-outlined text-base">arrow_outward</span>
                 กำลังจะมาถึง
               </button>
               <button
                 onClick={() => switchTab("past")}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   activeTab === "past"
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}
               >
-                <History className="w-4 h-4" />
+                <span className="material-symbols-outlined text-base">history</span>
                 ประวัติ
               </button>
             </div>
@@ -401,15 +392,15 @@ export default function MyBookingsPage() {
             {/* Loading */}
             {loading && (
               <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+                <span className="material-symbols-outlined material-icon-spin text-primary text-4xl">progress_activity</span>
               </div>
             )}
 
             {/* Empty State */}
             {!loading && data && data.bookings.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-16 text-slate-500">
-                <CalendarDays className="w-12 h-12 mb-3 opacity-50" />
-                <p className="text-lg font-medium">
+              <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                <span className="material-symbols-outlined text-6xl mb-3 opacity-40">calendar_month</span>
+                <p className="text-lg font-medium text-muted-foreground">
                   {activeTab === "upcoming"
                     ? "ไม่มีการจองที่กำลังจะมาถึง"
                     : "ไม่มีประวัติการจอง"}
@@ -424,18 +415,19 @@ export default function MyBookingsPage() {
 
             {/* Bookings List */}
             {!loading &&
-              data?.bookings.map((booking) => (
+              data?.bookings.map((booking, idx) => (
                 <BookingItemCard
                   key={booking.id}
                   booking={booking}
                   canCancel={CAN_CANCEL_STATUSES.includes(booking.status)}
                   onCancel={() => setCancelTarget(booking)}
+                  idx={idx}
                 />
               ))}
 
             {/* Pagination Info */}
             {data && data.pagination.total > 0 && (
-              <p className="text-center text-xs text-slate-600 mt-4">
+              <p className="text-center text-xs text-muted-foreground/60 mt-4">
                 แสดง {data.bookings.length} จาก {data.pagination.total} รายการ
               </p>
             )}
@@ -446,23 +438,23 @@ export default function MyBookingsPage() {
       {/* Cancel Modal */}
       {cancelTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md space-y-4">
+          <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-md space-y-4">
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-500/10 mb-3">
-                <XCircle className="w-6 h-6 text-red-400" />
+                <span className="material-symbols-outlined text-red-400 text-2xl">cancel</span>
               </div>
-              <h2 className="font-bold text-lg">ยืนยันการยกเลิก</h2>
-              <p className="text-sm text-slate-400 mt-1">
+              <h2 className="font-bold text-lg text-foreground">ยืนยันการยกเลิก</h2>
+              <p className="text-sm text-muted-foreground mt-1">
                 คุณต้องการยกเลิกการจอง{" "}
-                <span className="font-medium text-white">
+                <span className="font-medium text-foreground">
                   {cancelTarget.service.name}
                 </span>{" "}
                 วันที่{" "}
-                <span className="font-medium text-white">
+                <span className="font-medium text-foreground">
                   {formatDate(cancelTarget.bookingDate)}
                 </span>{" "}
                 เวลา{" "}
-                <span className="font-medium text-white">
+                <span className="font-medium text-foreground">
                   {cancelTarget.timeSlot}
                 </span>{" "}
                 ใช่หรือไม่?
@@ -471,13 +463,13 @@ export default function MyBookingsPage() {
 
             {cancelError && (
               <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span className="material-symbols-outlined text-base shrink-0">error_outline</span>
                 {cancelError}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-slate-300">
+              <label className="block text-sm font-medium mb-1.5 text-foreground/80">
                 เหตุผล (ไม่บังคับ)
               </label>
               <textarea
@@ -485,7 +477,7 @@ export default function MyBookingsPage() {
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder="ระบุเหตุผลการยกเลิก..."
                 rows={2}
-                className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none placeholder:text-slate-600"
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none placeholder:text-muted-foreground/60"
               />
             </div>
 
@@ -497,7 +489,7 @@ export default function MyBookingsPage() {
                   setCancelError("");
                 }}
                 disabled={cancelling}
-                className="flex-1 py-2.5 rounded-lg border border-slate-700 text-sm font-medium hover:bg-slate-800 transition-colors disabled:opacity-50"
+                className="flex-1 py-2.5 rounded-lg border border-border text-sm font-medium text-foreground/80 hover:bg-secondary transition-colors disabled:opacity-50"
               >
                 กลับ
               </button>
@@ -508,12 +500,12 @@ export default function MyBookingsPage() {
               >
                 {cancelling ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="material-symbols-outlined material-icon-spin text-base">progress_activity</span>
                     กำลังยกเลิก...
                   </>
                 ) : (
                   <>
-                    <XCircle className="w-4 h-4" />
+                    <span className="material-symbols-outlined text-base">cancel</span>
                     ยืนยันยกเลิก
                   </>
                 )}
@@ -533,24 +525,31 @@ function BookingItemCard({
   booking,
   canCancel,
   onCancel,
+  idx,
 }: {
   booking: BookingItem;
   canCancel: boolean;
   onCancel: () => void;
+  idx: number;
 }) {
+  const tilt = idx % 2 === 0 ? "rotate(-0.15deg)" : "rotate(0.1deg)";
+
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-3 space-y-3">
+    <div
+      className="bg-card border border-border rounded-xl p-4 mb-3 space-y-3"
+      style={{ transform: tilt }}
+    >
       {/* Header: Status + Queue */}
       <div className="flex items-center justify-between">
         <span
           className={`inline-block px-2.5 py-1 rounded-lg text-xs font-medium border ${
-            STATUS_COLORS[booking.status] || "bg-slate-800 text-slate-400 border-slate-700"
+            STATUS_COLORS[booking.status] || "bg-slate-800 text-muted-foreground border-slate-700"
           }`}
         >
           {STATUS_LABELS[booking.status] || booking.status}
         </span>
         {booking.queuePosition > 0 && (
-          <span className="text-xs text-slate-500 font-mono">
+          <span className="text-xs text-muted-foreground font-mono">
             คิวที่ {booking.queuePosition}
           </span>
         )}
@@ -562,19 +561,21 @@ function BookingItemCard({
           className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
           style={{
             backgroundColor:
-              (booking.service.color || "#3b82f6") + "20",
+              (booking.service.color || "#0F766E") + "15",
           }}
         >
-          <Scissors
-            className="w-5 h-5"
-            style={{ color: booking.service.color || "#3b82f6" }}
-          />
+          <span
+            className="material-symbols-outlined text-xl"
+            style={{ color: booking.service.color || "#0F766E" }}
+          >
+            content_cut
+          </span>
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-sm">{booking.service.name}</div>
-          <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+          <div className="font-semibold text-sm text-foreground">{booking.service.name}</div>
+          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
+              <span className="material-symbols-outlined text-xs">schedule</span>
               {booking.service.duration} นาที
             </span>
             <span>{formatPrice(booking.service.price)}</span>
@@ -584,17 +585,17 @@ function BookingItemCard({
 
       {/* Detail Row */}
       <div className="grid grid-cols-2 gap-2 text-sm">
-        <div className="flex items-center gap-1.5 text-slate-400">
-          <CalendarDays className="w-3.5 h-3.5" />
+        <div className="flex items-center gap-1.5 text-muted-foreground">
+          <span className="material-symbols-outlined text-sm">calendar_month</span>
           <span>{formatDate(booking.bookingDate)}</span>
         </div>
-        <div className="flex items-center gap-1.5 text-slate-400">
-          <Clock className="w-3.5 h-3.5" />
+        <div className="flex items-center gap-1.5 text-muted-foreground">
+          <span className="material-symbols-outlined text-sm">schedule</span>
           <span className="font-mono">{booking.timeSlot}</span>
         </div>
         {booking.staff && (
-          <div className="flex items-center gap-1.5 text-slate-400 col-span-2">
-            <User className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+            <span className="material-symbols-outlined text-sm">person</span>
             <span>
               {booking.staff.nickname ||
                 `${booking.staff.firstName} ${booking.staff.lastName}`}
@@ -602,8 +603,8 @@ function BookingItemCard({
           </div>
         )}
         {booking.shop && (
-          <div className="flex items-center gap-1.5 text-slate-500 col-span-2">
-            <MapPin className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+            <span className="material-symbols-outlined text-sm">location_on</span>
             <span className="text-xs">{booking.shop.name}</span>
           </div>
         )}
@@ -613,9 +614,9 @@ function BookingItemCard({
       {canCancel && (
         <button
           onClick={onCancel}
-          className="w-full py-2 rounded-lg border border-red-500/30 text-red-400 text-sm font-medium hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
+          className="w-full py-2 rounded-lg border border-red-500/20 text-red-400 text-sm font-medium hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
         >
-          <XCircle className="w-4 h-4" />
+          <span className="material-symbols-outlined text-base">cancel</span>
           ยกเลิกการจอง
         </button>
       )}
