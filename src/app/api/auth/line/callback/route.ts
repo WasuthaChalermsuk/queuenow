@@ -1,14 +1,31 @@
 // ============================================
 // QueueNow — LINE Login Callback
 // GET /api/auth/line/callback — handle OAuth callback
+// State verification: signed JWT (no cookies needed)
 // ============================================
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createCustomerToken } from "@/lib/auth";
+import crypto from "crypto";
 
 const LINE_CHANNEL_ID = process.env.LINE_CHANNEL_ID || "";
 const LINE_CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET || "";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
+
+function verifyState(state: string): { returnUrl: string; nonce: string } | null {
+  try {
+    const [b64, sig] = state.split(".");
+    if (!b64 || !sig) return null;
+    const expected = crypto.createHmac("sha256", JWT_SECRET).update(b64).digest("base64url");
+    if (sig !== expected) return null;
+    const payload = JSON.parse(Buffer.from(b64, "base64url").toString());
+    if (!payload.returnUrl) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
 
 interface LineTokenResponse {
   access_token: string;
@@ -34,7 +51,6 @@ export async function GET(req: NextRequest) {
     const error = searchParams.get("error");
     const errorDescription = searchParams.get("error_description");
 
-    // --- Handle LINE error response ---
     if (error) {
       console.error("LINE OAuth error:", error, errorDescription);
       return NextResponse.redirect(
@@ -43,22 +59,29 @@ export async function GET(req: NextRequest) {
     }
 
     if (!code) {
-      return NextResponse.redirect(
-        `${APP_URL}/?error=missing_code`
-      );
+      return NextResponse.redirect(`${APP_URL}/?error=missing_code`);
     }
 
-    // --- Verify state (CSRF protection) ---
-    const storedState = req.cookies.get("line_oauth_state")?.value;
-    if (!state || state !== storedState) {
-      console.error("LINE OAuth: state mismatch", { received: state, stored: storedState });
+    // Verify signed state (no cookies!)
+    if (!state) {
       return NextResponse.json(
-        { success: false, error: "State ไม่ตรงกัน — อาจเป็นการโจมตี CSRF" },
+        { success: false, error: "Missing state parameter" },
         { status: 400 }
       );
     }
 
-    // --- Exchange code for access token ---
+    const stateData = verifyState(state);
+    if (!stateData) {
+      console.error("LINE OAuth: invalid state signature");
+      return NextResponse.json(
+        { success: false, error: "State ไม่ถูกต้อง — อาจเป็นการโจมตี CSRF" },
+        { status: 400 }
+      );
+    }
+
+    const returnUrl = stateData.returnUrl;
+
+    // Exchange code for access token
     const tokenResponse = await fetch("https://api.line.me/oauth2/v2.1/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -74,43 +97,31 @@ export async function GET(req: NextRequest) {
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
       console.error("LINE token exchange failed:", tokenResponse.status, errorText);
-      return NextResponse.redirect(
-        `${APP_URL}/?error=token_exchange_failed`
-      );
+      return NextResponse.redirect(`${APP_URL}/?error=token_exchange_failed`);
     }
 
     const tokenData: LineTokenResponse = await tokenResponse.json();
 
     if (!tokenData.access_token) {
-      console.error("LINE token response missing access_token:", tokenData);
-      return NextResponse.redirect(
-        `${APP_URL}/?error=no_access_token`
-      );
+      return NextResponse.redirect(`${APP_URL}/?error=no_access_token`);
     }
 
-    // --- Get LINE profile ---
+    // Get LINE profile
     const profileResponse = await fetch("https://api.line.me/v2/profile", {
       headers: { Authorization: "Bearer " + tokenData.access_token },
     });
 
     if (!profileResponse.ok) {
-      const errorText = await profileResponse.text();
-      console.error("LINE profile fetch failed:", profileResponse.status, errorText);
-      return NextResponse.redirect(
-        `${APP_URL}/?error=profile_fetch_failed`
-      );
+      return NextResponse.redirect(`${APP_URL}/?error=profile_fetch_failed`);
     }
 
     const profile: LineProfile = await profileResponse.json();
 
     if (!profile.userId) {
-      console.error("LINE profile missing userId:", profile);
-      return NextResponse.redirect(
-        `${APP_URL}/?error=no_user_id`
-      );
+      return NextResponse.redirect(`${APP_URL}/?error=no_user_id`);
     }
 
-    // --- Find or create customer ---
+    // Find or create customer
     const displayName = profile.displayName || "LINE User";
     const [firstName, ...lastNameParts] = displayName.trim().split(" ");
     const lastName = lastNameParts.join(" ") || "";
@@ -120,7 +131,6 @@ export async function GET(req: NextRequest) {
     });
 
     if (!customer) {
-      // Create new customer with LINE profile info
       customer = await prisma.customer.create({
         data: {
           firstName: firstName || displayName,
@@ -129,8 +139,6 @@ export async function GET(req: NextRequest) {
         },
       });
     } else {
-      // Update display name if it changed (optional — keep existing)
-      // Only update if firstName is empty/placeholder
       if (customer.firstName === "LINE User" || !customer.firstName) {
         await prisma.customer.update({
           where: { id: customer.id },
@@ -142,7 +150,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // --- Create JWT token for customer ---
+    // Create JWT for customer
     const token = createCustomerToken({
       id: customer.id,
       firstName: customer.firstName,
@@ -150,46 +158,24 @@ export async function GET(req: NextRequest) {
       lineUserId: customer.lineUserId,
     });
 
-    // --- Redirect back to frontend with token ---
-    // อ่าน returnUrl จาก cookie (default: "/")
-    const returnUrl = req.cookies.get("line_return_url")?.value || "/";
+    // Redirect back to frontend with token
     const redirectUrl = new URL(returnUrl, APP_URL);
     redirectUrl.searchParams.set("token", token);
 
     const response = NextResponse.redirect(redirectUrl.toString());
 
-    // Clear the state cookie
-    response.cookies.set("line_oauth_state", "", {
-      httpOnly: true,
-      secure: APP_URL.startsWith("https"),
-      sameSite: "lax",
-      maxAge: 0,
-      path: "/",
-    });
-
-    // Clear the returnUrl cookie
-    response.cookies.set("line_return_url", "", {
-      httpOnly: true,
-      secure: APP_URL.startsWith("https"),
-      sameSite: "lax",
-      maxAge: 0,
-      path: "/",
-    });
-
-    // Set token as cookie (httpOnly for security — server-side reads)
+    // Set token cookie (httpOnly)
     response.cookies.set("queuenow_token", token, {
       httpOnly: true,
       secure: APP_URL.startsWith("https"),
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 30, // 30 days
+      maxAge: 60 * 60 * 24 * 30,
       path: "/",
     });
 
     return response;
   } catch (error) {
     console.error("LINE callback unexpected error:", error);
-    return NextResponse.redirect(
-      `${APP_URL}/?error=internal_error`
-    );
+    return NextResponse.redirect(`${APP_URL}/?error=internal_error`);
   }
 }

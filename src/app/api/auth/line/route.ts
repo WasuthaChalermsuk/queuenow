@@ -1,13 +1,21 @@
 // ============================================
 // QueueNow — LINE Login Redirect
 // GET /api/auth/line — redirect to LINE OAuth
-// Query: ?returnUrl=/book/confirm (หน้าที่จะ redirect กลับมา)
+// State: signed JWT (no cookies needed — survives cross-domain)
 // ============================================
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
 const LINE_CHANNEL_ID = process.env.LINE_CHANNEL_ID || "";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
+
+function signState(payload: Record<string, string>): string {
+  const data = JSON.stringify(payload);
+  const b64 = Buffer.from(data).toString("base64url");
+  const hmac = crypto.createHmac("sha256", JWT_SECRET).update(b64).digest("base64url");
+  return `${b64}.${hmac}`;
+}
 
 export async function GET(req: NextRequest) {
   if (!LINE_CHANNEL_ID) {
@@ -17,12 +25,12 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // อ่าน returnUrl จาก query param (หน้าที่ผู้ใช้จะกลับมา)
   const { searchParams } = new URL(req.url);
   const returnUrl = searchParams.get("returnUrl") || "/";
+  const nonce = crypto.randomBytes(12).toString("hex");
 
-  // Generate random state for CSRF protection
-  const state = crypto.randomBytes(16).toString("hex");
+  // Encode returnUrl + nonce into signed state (no cookies!)
+  const state = signState({ returnUrl, nonce });
 
   const redirectUri = `${APP_URL}/api/auth/line/callback`;
 
@@ -33,25 +41,5 @@ export async function GET(req: NextRequest) {
   authUrl.searchParams.set("state", state);
   authUrl.searchParams.set("scope", "profile openid");
 
-  const response = NextResponse.redirect(authUrl.toString());
-
-  // Store state in cookie for verification in callback (10 min expiry)
-  response.cookies.set("line_oauth_state", state, {
-    httpOnly: true,
-    secure: APP_URL.startsWith("https"),
-    sameSite: "lax",
-    maxAge: 60 * 10, // 10 minutes
-    path: "/",
-  });
-
-  // Store returnUrl in cookie so callback knows where to redirect
-  response.cookies.set("line_return_url", returnUrl, {
-    httpOnly: true,
-    secure: APP_URL.startsWith("https"),
-    sameSite: "lax",
-    maxAge: 60 * 10, // 10 minutes
-    path: "/",
-  });
-
-  return response;
+  return NextResponse.redirect(authUrl.toString());
 }
