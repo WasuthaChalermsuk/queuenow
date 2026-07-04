@@ -30,7 +30,7 @@ export default function AdminBookings() {
         headers: { Authorization: "Bearer " + token },
       });
       const data = await res.json();
-      if (data.success) setBookings(data.data || []);
+      if (data.success) setBookings(data.data?.bookings || data.data || []);
       setError("");
     } catch {
       setError("โหลดข้อมูลไม่สำเร็จ");

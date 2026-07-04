@@ -63,7 +63,7 @@ export default function AdminDashboard() {
         setStats(dash.data.stats || { total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0 });
       }
       if (book.success) {
-        setBookings(book.data || []);
+        setBookings(book.data?.bookings || book.data || []);
       }
       setError("");
     } catch {
